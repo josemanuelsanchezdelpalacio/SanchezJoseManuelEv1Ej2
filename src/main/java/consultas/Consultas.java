@@ -22,7 +22,7 @@ public class Consultas {
         ObraEntity nuevaObra = new ObraEntity();
         nuevaObra.setNombre(Leer.pedirCadena("Introduce nombre de obra nueva: "));
         nuevaObra.setDireccion(Leer.pedirCadena("Introduce direccion de la obra: "));
-        nuevaObra.setEntrega(Date.valueOf(LocalDate.now()));
+        nuevaObra.setEntrega((Date) Leer.pedirFecha("Introduce fecha de entrega: ", "yyyy-MM-dd"));
 
         em.persist(nuevaObra);
         transaction.commit();
@@ -31,43 +31,43 @@ public class Consultas {
 
     public static void cambiarObra(EntityManager em) {
         EntityTransaction transaction = em.getTransaction();
-        // comenzamos a crear el contexto de persistencia
+        //comenzamos a crear el contexto de persistencia
         transaction.begin();
 
         try {
-            //muestro la lista de obras
+            //muestro lista obras
             List<ObraEntity> obras = em.createQuery("from ObraEntity", ObraEntity.class).getResultList();
             for (ObraEntity obra : obras) {
-                System.out.println(obra.getId() + ". " + obra.getNombre());
+                System.out.println("ID OBRA: " + obra.getId() + ". NOMBRE OBRA: " + obra.getNombre());
             }
 
-            String obraBuscada = Leer.pedirCadena("Introduce el título de la obra para modificar el empleado: ");
+            //busco el nombre de la obra
+            String obraBuscada = Leer.pedirCadena("Introduce el nombre de la obra para modificar el empleado: ");
             Query queryObra = em.createQuery("from ObraEntity where nombre = ?1").setParameter(1, obraBuscada);
 
             ObraEntity obra = (ObraEntity) queryObra.getSingleResult();
 
             if (obra != null) {
-                //muestro la lista de empleados
+                //muestro lista empleados
                 List<EmpleadoEntity> empleados = em.createQuery("from EmpleadoEntity", EmpleadoEntity.class).getResultList();
                 for (EmpleadoEntity empleado : empleados) {
-                    System.out.println(empleado.getId() + ". " + empleado.getNombre());
+                    System.out.println("ID EMPLEADO: " + empleado.getId() + ". NOMBRE EMPLEADO: " + empleado.getNombre());
                 }
 
-                //obtengo el empleado actual asignado a la obra
-                Query queryEmpleado = em.createQuery("from EmpleadoEntity where idObra = ?1").setParameter(1, obra.getId());
-                EmpleadoEntity empleadoActual = (EmpleadoEntity) queryEmpleado.getSingleResult();
+                //busco el empleado para modificar su idObra
+                int empleadoBuscado = Leer.pedirEntero("Introduce el ID del empleado para modificar la obra asignada: ");
+                Query queryEmpleado = em.createQuery("from EmpleadoEntity where id = ?1").setParameter(1, empleadoBuscado);
 
-                //modifico los datos del empleado asignado a la obra
-                String nuevoEmpleado = Leer.pedirCadena("Introduce el nuevo nombre del empleado: ");
-                empleadoActual.setNombre(nuevoEmpleado);
+                EmpleadoEntity empleadoActual = (EmpleadoEntity) queryEmpleado.getSingleResult();
+                empleadoActual.setIdObra(obra.getId());
 
                 em.persist(empleadoActual);
                 System.out.println("Los datos del empleado asociado a la obra actualizados");
             } else {
-                System.out.println("No se encontro la obra con el nombre proporcionado");
+                System.out.println("No se encontró la obra con el nombre proporcionado");
             }
         } catch (NoResultException e) {
-            System.out.println("No se encontro la obra con el titulo proporcionado");
+            System.out.println("No se encontró la obra con el título proporcionado");
         }
 
         // al hacer el commit, los cambios se pasan a la base de datos
