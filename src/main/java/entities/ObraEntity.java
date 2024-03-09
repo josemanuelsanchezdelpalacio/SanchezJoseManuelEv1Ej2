@@ -3,6 +3,7 @@ package entities;
 import jakarta.persistence.*;
 
 import java.sql.Date;
+import java.util.Collection;
 
 @Entity
 @Table(name = "obra", schema = "constructoraH", catalog = "")
@@ -20,6 +21,10 @@ public class ObraEntity {
     @Basic
     @Column(name = "entrega")
     private Date entrega;
+    @OneToMany(mappedBy = "obraByIdObra")
+    private Collection<EmpleadoEntity> empleadosById;
+    @OneToMany(mappedBy = "obraByIdObra")
+    private Collection<MaquinariaEntity> maquinariasById;
 
     public int getId() {
         return id;
@@ -75,5 +80,21 @@ public class ObraEntity {
         result = 31 * result + (direccion != null ? direccion.hashCode() : 0);
         result = 31 * result + (entrega != null ? entrega.hashCode() : 0);
         return result;
+    }
+
+    public Collection<EmpleadoEntity> getEmpleadosById() {
+        return empleadosById;
+    }
+
+    public void setEmpleadosById(Collection<EmpleadoEntity> empleadosById) {
+        this.empleadosById = empleadosById;
+    }
+
+    public Collection<MaquinariaEntity> getMaquinariasById() {
+        return maquinariasById;
+    }
+
+    public void setMaquinariasById(Collection<MaquinariaEntity> maquinariasById) {
+        this.maquinariasById = maquinariasById;
     }
 }

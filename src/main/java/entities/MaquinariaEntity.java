@@ -21,6 +21,12 @@ public class MaquinariaEntity {
     @Basic
     @Column(name = "modelo")
     private String modelo;
+    @ManyToOne
+    @JoinColumn(name = "id_empleado", referencedColumnName = "id", updatable = false, insertable = false)
+    private EmpleadoEntity empleadoByIdEmpleado;
+    @ManyToOne
+    @JoinColumn(name = "id_obra", referencedColumnName = "id", updatable = false, insertable = false)
+    private ObraEntity obraByIdObra;
 
     public int getId() {
         return id;
@@ -86,5 +92,21 @@ public class MaquinariaEntity {
         result = 31 * result + (matricula != null ? matricula.hashCode() : 0);
         result = 31 * result + (modelo != null ? modelo.hashCode() : 0);
         return result;
+    }
+
+    public EmpleadoEntity getEmpleadoByIdEmpleado() {
+        return empleadoByIdEmpleado;
+    }
+
+    public void setEmpleadoByIdEmpleado(EmpleadoEntity empleadoByIdEmpleado) {
+        this.empleadoByIdEmpleado = empleadoByIdEmpleado;
+    }
+
+    public ObraEntity getObraByIdObra() {
+        return obraByIdObra;
+    }
+
+    public void setObraByIdObra(ObraEntity obraByIdObra) {
+        this.obraByIdObra = obraByIdObra;
     }
 }

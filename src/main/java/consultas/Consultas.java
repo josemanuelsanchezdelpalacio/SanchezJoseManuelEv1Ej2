@@ -48,7 +48,7 @@ public class Consultas {
             List<EmpleadoEntity> empleados = em.createQuery("from EmpleadoEntity", EmpleadoEntity.class).getResultList();
             System.out.println("Empleados disponibles:");
             for (EmpleadoEntity empleado : empleados) {
-                System.out.println("ID EMPLEADO: " + empleado.getId() + ". NOMBRE EMPLEADO: " + empleado.getNombre() + ". ID OBRA ASIGNADA: " + empleado.getIdObra());
+                System.out.println("ID EMPLEADO: " + empleado.getId() + ". NOMBRE EMPLEADO: " + empleado.getNombre() + ". ID OBRA ASIGNADA: " + (empleado.getObraByIdObra() != null ? empleado.getObraByIdObra().getId() : "N/A"));
             }
 
             //busco el empleado para modificar su idObra
@@ -70,7 +70,7 @@ public class Consultas {
                 Query queryObra = em.createQuery("from ObraEntity where id = ?1").setParameter(1, obraBuscada);
 
                 ObraEntity obra = (ObraEntity) queryObra.getSingleResult();
-                empleadoActual.setIdObra(obra.getId());
+                empleadoActual.setObraByIdObra(obra);
 
                 em.persist(empleadoActual);
                 System.out.println("Los datos de la obra asociada al empleado han sido actualizados");
@@ -86,3 +86,4 @@ public class Consultas {
         }
     }
 }
+
