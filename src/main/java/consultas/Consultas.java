@@ -9,68 +9,80 @@ import jakarta.persistence.Query;
 import libs.Leer;
 
 import java.sql.Date;
-import java.time.LocalDate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class Consultas {
     public static void insertarObra(EntityManager em) {
         EntityTransaction transaction = em.getTransaction();
-        //comenzamos a crear el contexto de persistencia
-        transaction.begin();
+        try {
+            transaction.begin();
 
-        //introduzco los datos en la tabla de Obra
-        ObraEntity nuevaObra = new ObraEntity();
-        nuevaObra.setNombre(Leer.pedirCadena("Introduce nombre de obra nueva: "));
-        nuevaObra.setDireccion(Leer.pedirCadena("Introduce direccion de la obra: "));
-        nuevaObra.setEntrega((Date) Leer.pedirFecha("Introduce fecha de entrega: ", "yyyy-MM-dd"));
+            //introduzco los datos en la tabla de Obra
+            ObraEntity nuevaObra = new ObraEntity();
+            nuevaObra.setNombre(Leer.pedirCadena("Introduce nombre de obra nueva: "));
+            nuevaObra.setDireccion(Leer.pedirCadena("Introduce dirección de la obra: "));
 
-        em.persist(nuevaObra);
-        transaction.commit();
-        System.out.println("Obra insertada correctamente.");
+            String fechaStr = Leer.pedirCadena("Introduce fecha de entrega (formato yyyy-MM-dd): ");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date fechaEntrega = new Date(dateFormat.parse(fechaStr).getTime());
+            nuevaObra.setEntrega(fechaEntrega);
+
+            em.persist(nuevaObra);
+            transaction.commit();
+            System.out.println("Obra insertada correctamente.");
+        } catch (ParseException e) {
+            System.err.println("Error al parsear la fecha. Asegúrate de usar el formato yyyy-MM-dd.");
+        }
     }
 
     public static void cambiarObra(EntityManager em) {
         EntityTransaction transaction = em.getTransaction();
-        //comenzamos a crear el contexto de persistencia
-        transaction.begin();
 
         try {
-            //muestro lista obras
-            List<ObraEntity> obras = em.createQuery("from ObraEntity", ObraEntity.class).getResultList();
-            for (ObraEntity obra : obras) {
-                System.out.println("ID OBRA: " + obra.getId() + ". NOMBRE OBRA: " + obra.getNombre());
+            //comenzamos a crear el contexto de persistencia
+            transaction.begin();
+
+            //muestro lista empleados
+            List<EmpleadoEntity> empleados = em.createQuery("from EmpleadoEntity", EmpleadoEntity.class).getResultList();
+            System.out.println("Empleados disponibles:");
+            for (EmpleadoEntity empleado : empleados) {
+                System.out.println("ID EMPLEADO: " + empleado.getId() + ". NOMBRE EMPLEADO: " + empleado.getNombre() + ". ID OBRA ASIGNADA: " + empleado.getIdObra());
             }
 
-            //busco el nombre de la obra
-            String obraBuscada = Leer.pedirCadena("Introduce el nombre de la obra para modificar el empleado: ");
-            Query queryObra = em.createQuery("from ObraEntity where nombre = ?1").setParameter(1, obraBuscada);
+            //busco el empleado para modificar su idObra
+            int empleadoBuscado = Leer.pedirEntero("Introduce el ID del empleado para modificar la obra asignada: ");
+            Query queryEmpleado = em.createQuery("from EmpleadoEntity where id = ?1").setParameter(1, empleadoBuscado);
 
-            ObraEntity obra = (ObraEntity) queryObra.getSingleResult();
+            EmpleadoEntity empleadoActual = (EmpleadoEntity) queryEmpleado.getSingleResult();
 
-            if (obra != null) {
-                //muestro lista empleados
-                List<EmpleadoEntity> empleados = em.createQuery("from EmpleadoEntity", EmpleadoEntity.class).getResultList();
-                for (EmpleadoEntity empleado : empleados) {
-                    System.out.println("ID EMPLEADO: " + empleado.getId() + ". NOMBRE EMPLEADO: " + empleado.getNombre());
+            if (empleadoActual != null) {
+                //muestro lista obras
+                List<ObraEntity> obras = em.createQuery("from ObraEntity", ObraEntity.class).getResultList();
+                System.out.println("Obras disponibles:");
+                for (ObraEntity obra : obras) {
+                    System.out.println("ID OBRA: " + obra.getId() + ". NOMBRE OBRA: " + obra.getNombre());
                 }
 
-                //busco el empleado para modificar su idObra
-                int empleadoBuscado = Leer.pedirEntero("Introduce el ID del empleado para modificar la obra asignada: ");
-                Query queryEmpleado = em.createQuery("from EmpleadoEntity where id = ?1").setParameter(1, empleadoBuscado);
+                //busco el nombre de la obra
+                String obraBuscada = Leer.pedirCadena("Introduce el ID de la obra para asignar al empleado: ");
+                Query queryObra = em.createQuery("from ObraEntity where id = ?1").setParameter(1, obraBuscada);
 
-                EmpleadoEntity empleadoActual = (EmpleadoEntity) queryEmpleado.getSingleResult();
+                ObraEntity obra = (ObraEntity) queryObra.getSingleResult();
                 empleadoActual.setIdObra(obra.getId());
 
                 em.persist(empleadoActual);
-                System.out.println("Los datos del empleado asociado a la obra actualizados");
+                System.out.println("Los datos de la obra asociada al empleado han sido actualizados");
             } else {
-                System.out.println("No se encontró la obra con el nombre proporcionado");
+                System.out.println("No se encontró el empleado con el ID proporcionado");
             }
-        } catch (NoResultException e) {
-            System.out.println("No se encontró la obra con el título proporcionado");
-        }
 
-        // al hacer el commit, los cambios se pasan a la base de datos
-        transaction.commit();
+            //al hacer el commit, los cambios se pasan a la base de datos
+            transaction.commit();
+
+        } catch (NoResultException e) {
+            System.out.println("No se encontró el empleado con el ID proporcionado");
+        }
     }
 }

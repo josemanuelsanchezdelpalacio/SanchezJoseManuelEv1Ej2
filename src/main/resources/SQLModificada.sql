@@ -27,7 +27,7 @@ CREATE TABLE empleado (
 CREATE TABLE maquinaria (
     id INT NOT NULL AUTO_INCREMENT,
     id_empleado INT NOT NULL,
-	 id_obra INT NOT NULL,
+	id_obra INT NOT NULL,
     matricula VARCHAR(7) NOT NULL UNIQUE,
     modelo VARCHAR(20) NOT NULL,
     PRIMARY KEY (id),
